@@ -5,6 +5,7 @@ using UnityEngine;
 public class TamperSensor : MonoBehaviour
 {
     [SerializeField] private float _smoothSoundDuration = 1.0f;
+
     private AudioSource _audioPlayer;
     private Coroutine _audioPlayerJob;
 
@@ -15,46 +16,34 @@ public class TamperSensor : MonoBehaviour
 
     public void EnterArea()
     {
-        Debug.Log("Enter");
-
         if ((_audioPlayerJob == null) == false)
             StopCoroutine(_audioPlayerJob);
         
-        _audioPlayerJob = StartCoroutine(SmoothStartSound(_smoothSoundDuration));
+        _audioPlayer.volume = 0.0f;
+        _audioPlayer.Play();
+        _audioPlayerJob = StartCoroutine(SmoothSoundLookToward(1.0f, _smoothSoundDuration));
     }
 
     public void ExitArea()
     {
-        Debug.Log("Exit");
-        
         if ((_audioPlayerJob == null) == false)
             StopCoroutine(_audioPlayerJob);
 
-        _audioPlayerJob = StartCoroutine(SmoothStopSound(_smoothSoundDuration));
+        _audioPlayerJob = StartCoroutine(SmoothSoundLookToward(0.0f, _smoothSoundDuration));
     }
 
-    private IEnumerator SmoothStartSound(float duration)
+    private IEnumerator SmoothSoundLookToward(float value, float duration = 1.0f)
     {
-        _audioPlayer.volume = 0.0f;
-        _audioPlayer.Play();
-        
-        while(_audioPlayer.volume != 1.0f)
+        while(_audioPlayer.volume != value)
         {
-            _audioPlayer.volume = Mathf.MoveTowards(_audioPlayer.volume, 1, Time.deltaTime / duration);
-
-            yield return null;
-        }
-    }
-
-    private IEnumerator SmoothStopSound(float duration = 1.0f)
-    {
-        while(_audioPlayer.volume != 0.0f)
-        {
-            _audioPlayer.volume = Mathf.MoveTowards(_audioPlayer.volume, 0, Time.deltaTime / duration);
+            _audioPlayer.volume = Mathf.MoveTowards(_audioPlayer.volume, value, Time.deltaTime / duration);
 
             yield return null;
         }
 
-        _audioPlayer.Stop();
+        if (_audioPlayer.volume == 0.0f)
+        {
+            _audioPlayer.Stop();
+        }
     }
 }
