@@ -48,6 +48,7 @@ public class WaypointsMovement : MonoBehaviour
         for (int i = 1; i <= array.Length - i; i++)
         {
             Transform buffer = array[i - 1];
+
             array[i - 1] = array[array.Length - i];
             array[array.Length - i] = buffer;
         }
